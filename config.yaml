@@ -1,0 +1,25 @@
+command: evaluate
+LIMIT: 6
+LIMIT_RR: 3
+question:
+    path: /home/lake/Project/Vi_ICE/code/preprocessed_Milestone_1&2_New_York_&_Bitcoin.xlsx
+data:
+    name: Sherlock
+    path: /home/lake/Project/Vi_ICE/testing_section/data/corpus/multiple_ps/2021/test
+model:
+    qa_name: ./models/roberta-large-squad2
+    # facebook/contriever-msmarco
+    # castorini/doc2query-t5-base-msmarco
+    # castorini/monot5-large-msmarco
+    # cross-encoder/ms-marco-MiniLM-L-12-v2
+    sen_sim_name: ./models/distilbert-dot-tas_b-b256-msmarco
+    retriever:
+        query_emb_name: ./models/dpr-question_encoder-single-nq-base
+        passage_emb_name: ./models/dpr-ctx_encoder-single-nq-base
+    device: 1
+report:
+    path: './report'
+
+defaults:
+    - override hydra/job_logging: none
+    - override hydra/hydra_logging: none
