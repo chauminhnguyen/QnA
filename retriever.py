@@ -4,6 +4,8 @@ import re
 from nltk.util import everygrams
 from text_processing import process_stops, reverse_process_stops
 
+from haystack.nodes import DensePassageRetriever
+
 import nltk
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -288,8 +290,6 @@ class DPR_Retriever(IRetriever):
         Output:
             doc (type: FaissDocumentStore): document store
         '''
-
-        from haystack.nodes import DensePassageRetriever
 
         if self.device != 'cpu':
             self.device = 'cuda:' + str(self.device)

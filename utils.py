@@ -9,6 +9,8 @@ from datetime import date
 from haystack.document_stores import FAISSDocumentStore
 from haystack.utils import convert_files_to_docs
 
+from sentence_transformers import SentenceTransformer, util
+
 class Exporter():
     def __init__(self, questions: List, answers: List, data_name):
         self.questions = questions
@@ -236,8 +238,6 @@ class Document:
         self.load_data()
     
     def load_data(self):
-        from haystack.document_stores import FAISSDocumentStore
-        from haystack.utils import convert_files_to_docs
 
         if os.path.exists('./faiss_document_store.db'):
             os.remove(os.path.join('./faiss_document_store.db'))
@@ -269,7 +269,6 @@ class Sentence_Similarity:
         Load asymetric semantic search model
         Source code: https://www.sbert.net/docs/pretrained-models/msmarco-v3.html
         '''
-        from sentence_transformers import SentenceTransformer, util
         if self.device == 'cpu':
             self.sen_trans = SentenceTransformer(self.sen_sim_model)
         else:
