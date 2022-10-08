@@ -268,8 +268,8 @@ class QuestionAnswering:
         return para
     
     def text_preprocess(self, text):
-        # text = text.lower()
-        text = re.sub("\,|\.|\-|\'|\"|\+|\?|\!|\@|\#|\$|\%|\;|\[|\]|\/|\:|\)|\(", "", text)
+        text = text.lower()
+        text = re.sub("\-|\'|\"|\+|\@|\#|\$|\%|\/|\)", "", text)
         return text
 
     def load_qa_from_excel(self, question_path, data_name):
@@ -314,8 +314,8 @@ class QuestionAnswering:
             res = self.model(QA_input)
             answer = res['answer']
             score = res['score']
-            if len(answer) > 5 or answer.isalnum():
-            # if re.match('\w', answer) is not None:
+            # if len(answer) > 5 or answer.isalnum():
+            if re.match('\w', answer) is not None:
                 real_answers.append(answer)
                 if score < confL:
                     para = process_stops(para)
@@ -329,7 +329,7 @@ class QuestionAnswering:
     def test_one_sample(self, question, logging : Snapshot = None):
 
         # ========================== Model Infer ==========================
-        # question = self.text_preprocess(question)
+        question = self.text_preprocess(question)
         predict, real_predict, scores, paras = self.model_infer(question, 1.0)
         
         sc_args = np.argsort(np.array(scores))
@@ -354,8 +354,11 @@ class QuestionAnswering:
             limit_paras.append(paras[sc_args[-i-1]])
 
         # ========================== Sentence Similarity ==========================
+        paras_scores = self.sen_sim.similarity(question, limit_paras)
         sen_scores = self.sen_sim.similarity(question, limit_predict)
-        sen_model_scores = [(sen_score + model_score) for sen_score, model_score in zip(sen_scores, limit_scores)]
+        sen_model_scores = [(sen_score + paras_score) for sen_score, paras_score in zip(sen_scores, paras_scores)]
+        # sen_model_scores = [(sen_score + paras_score + model_score) for sen_score, paras_score, model_score in zip(sen_scores, paras_scores, limit_scores)]
+        # sen_model_scores = [(sen_score + model_score) for sen_score, model_score in zip(sen_scores, limit_scores)]
         indexes = np.argsort(np.array(sen_model_scores).flatten())
 
         # Logging
@@ -370,36 +373,41 @@ class QuestionAnswering:
 
         limit_sim_predict = []
         limit_sim_real_predict = []
-        limit_sim_scores = []
+        limit_model_scores = []
         limit_sen_scores = []
         for it in range(self.LIMIT_RR):
             limit_sim_predict.append(limit_predict[indexes[-it-1]])
             limit_sim_real_predict.append(limit_real_predict[indexes[-it-1]])
-            limit_sim_scores.append(limit_scores[indexes[-it-1]])
+            limit_model_scores.append(limit_scores[indexes[-it-1]])
             limit_sen_scores.append(sen_scores[indexes[-it-1]])
         
         final_predict = []
         final_real_predict = []
-        final_scores = []
+        final_model_scores = []
         final_sen_scores = []
-        for it in range(len(limit_sim_scores)):
-            if limit_sim_scores[it] > 1e-4:
+        for it in range(len(limit_model_scores)):
+            # final_predict.append(limit_sim_predict[it].lower())
+            # final_real_predict.append(limit_sim_real_predict[it])
+            # final_model_scores.append(limit_model_scores[it])
+            # final_sen_scores.append(limit_sen_scores[it])
+
+            if limit_model_scores[it] > 1e-4:
                 if  limit_sim_predict[it].lower() in final_predict or \
-                    (limit_sen_scores[it] > 90. or limit_sim_scores[it] > 0.9):
+                (limit_sen_scores[it] > 90. or limit_model_scores[it] > 0.9):
                     final_predict = [limit_sim_predict[it].lower()]
                     final_real_predict = [limit_sim_real_predict[it]]
-                    final_scores = [limit_sim_scores[it]]
+                    final_model_scores = [limit_model_scores[it]]
                     final_sen_scores = [limit_sen_scores[it]]
                     break
                 else:
                     final_predict.append(limit_sim_predict[it].lower())
                     final_real_predict.append(limit_sim_real_predict[it])
-                    final_scores.append(limit_sim_scores[it])
+                    final_model_scores.append(limit_model_scores[it])
                     final_sen_scores.append(limit_sen_scores[it])
-        
+
         if len(final_predict) == 0:
             final_predict.append(limit_sim_predict[0])
             final_real_predict.append(limit_sim_real_predict[0])
-            final_scores.append(limit_sim_scores[0])
+            final_model_scores.append(limit_model_scores[0])
             final_sen_scores.append(limit_sen_scores[0])
-        return final_predict, final_real_predict, final_scores, final_sen_scores
+        return final_predict, final_real_predict, final_model_scores, final_sen_scores
