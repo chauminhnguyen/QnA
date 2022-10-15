@@ -5,4 +5,5 @@ Azure/
 outputs/
 models/
 env_QnA/
+report/
 faiss_document_store.db
