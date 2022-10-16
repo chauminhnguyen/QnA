@@ -2,7 +2,7 @@ faiss-gpu==1.7.2
 farm-haystack==1.4.0
 nltk==3.7
 numba==0.55.2
-numpy==1.21.6
+numpy>=1.22
 openpyxl==3.0.10
 pandas==1.3.5
 hydra-core==1.2.0
