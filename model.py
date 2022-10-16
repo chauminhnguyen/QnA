@@ -5,6 +5,9 @@ from utils import QA_Measure, Document, Sentence_Similarity, Snapshot, Exporter
 import pandas as pd
 import re
 from text_processing import process_stops, reverse_process_stops
+from spacy.lang.en import English
+from transformers import pipeline
+from collections import Counter
 
 TEXT_COLOR_RED = '\x1b[0;31;40m'
 TEXT_COLOR_GREEN = '\x1b[0;32;40m'
@@ -116,7 +119,6 @@ class Debug(State):
         acc = _sum / len(questions) * 1.0
         print("Accuracy: " + str(acc))
 
-        from collections import Counter
         print(Counter(_len))
         return good_arr
     
@@ -182,7 +184,6 @@ class Evaluate(State):
         acc = _sum / len(questions) * 1.0
         print("Accuracy: " + str(acc))
 
-        from collections import Counter
         print(Counter(_len))
         print('bad_arr', bad_arr)
         
@@ -234,7 +235,6 @@ class QuestionAnswering:
     
     def load_model(self):
         # Load sentence segmentation model
-        from spacy.lang.en import English
         self.nlpSeg = English()  # just the language with no model
         self.nlpSeg.add_pipe("sentencizer")
         # Load data
@@ -243,7 +243,6 @@ class QuestionAnswering:
         self.lexical_retriever = N_Gram_Retriever(document_store)
         self.sementic_retriever = DPR_Retriever(document_store, self.device)
         # Load QA model
-        from transformers import pipeline
         if self.device == 'cpu':
             self.model = pipeline('question-answering', model=self.model_name, tokenizer=self.model_name)
         else:
