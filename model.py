@@ -313,8 +313,8 @@ class QuestionAnswering:
             res = self.model(QA_input)
             answer = res['answer']
             score = res['score']
-            # if len(answer) > 5 or answer.isalnum():
-            if re.match('\w', answer) is not None:
+            if len(answer) > 5 or answer.isalnum():
+            # if re.match('\w', answer) is not None:
                 real_answers.append(answer)
                 if score < confL:
                     para = process_stops(para)

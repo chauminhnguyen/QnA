@@ -2,10 +2,10 @@ command: evaluate
 LIMIT: 6
 LIMIT_RR: 3
 question:
-    path: /home/lake/Project/Vi_ICE/code/preprocessed_Milestone_1&2_New_York_&_Bitcoin.xlsx
+    path: ./test/preprocessed_Milestone_1&2_New_York_&_Bitcoin.xlsx
 data:
-    name: Sherlock
-    path: /home/lake/Project/Vi_ICE/testing_section/data/corpus/multiple_ps/2021/test
+    name: NewYork
+    path: ./test/
 model:
     qa_name: ./models/roberta-large-squad2
     # facebook/contriever-msmarco
